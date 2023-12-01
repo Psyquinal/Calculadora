@@ -1,0 +1,136 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class FacuCalculadora extends JFrame implements ActionListener {
+    private JTextField display;
+    private String operador;
+    private int NumAnterior;
+    private boolean nuevaOperacion;
+
+public FacuCalculadora() {
+        setTitle("Calculadora");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(300, 400);
+        setResizable(false);
+
+//**************** interfaz de la calculadora **********************
+
+        JPanel panelPrincipal = new JPanel(new BorderLayout());
+        panelPrincipal.setBackground(Color.WHITE);
+
+        display = new JTextField("0", 20);
+        display.setEditable(false);
+        panelPrincipal.add(display, BorderLayout.NORTH);
+
+//**************** interfaz de los botones numéricos y operadores **************
+
+        JPanel panelBotones = new JPanel();
+        panelBotones.setLayout(new GridLayout(4, 4));
+        panelBotones.setBackground(Color.WHITE);
+
+        String[] labels = {
+                "7", "8", "9", "/",
+                "4", "5", "6", "*",
+                "1", "2", "3", "-",
+                "+/-", "0", "=", "+"
+        };
+
+        for (String label : labels) {
+            JButton boton = new JButton(label);
+            boton.addActionListener(this);
+            boton.setBackground(Color.WHITE);
+            panelBotones.add(boton);
+        }
+
+//************** boton = ************************
+
+        JButton botonIgual = (JButton) panelBotones.getComponent(14); 
+        botonIgual.setBackground(Color.LIGHT_GRAY); 
+
+//************* definir el boton C **************
+
+        JButton botonC = new JButton("C");
+        botonC.addActionListener(this);
+        botonC.setPreferredSize(new Dimension(60, 60));
+        panelPrincipal.add(botonC, BorderLayout.SOUTH);
+
+        panelPrincipal.add(panelBotones, BorderLayout.CENTER);
+
+        add(panelPrincipal);
+
+        operador = "";
+        NumAnterior = 0;
+        nuevaOperacion = true;
+    }
+
+//******************* operaciones ***********************
+
+    private void calcular() {
+        if (!operador.equals("")) {
+            int NumActual = Integer.parseInt(display.getText());
+            switch (operador) {
+                case "+":
+                    NumAnterior += NumActual;
+                    break;
+                case "-":
+                    NumAnterior -= NumActual;
+                    break;
+                case "*":
+                    NumAnterior *= NumActual;
+                    break;
+                case "/":
+                    if (NumActual != 0) {
+                        NumAnterior /= NumActual;
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No se puede dividir por cero", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    break;
+            }
+            display.setText(String.valueOf(NumAnterior));
+        }
+        operador = "";
+        nuevaOperacion = true;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String textoBoton = e.getActionCommand();
+
+        if ("0123456789".contains(textoBoton)) {
+            if (nuevaOperacion) {
+                display.setText(textoBoton);
+                nuevaOperacion = false;
+            } else {
+                display.setText(display.getText() + textoBoton);
+            }
+        } else if (textoBoton.equals("+/-")) {
+            int NumActual = Integer.parseInt(display.getText());
+            NumActual *= -1;
+            display.setText(String.valueOf(NumActual));
+        } else if (textoBoton.equals("=")) {
+            calcular();
+        } else if (textoBoton.equals("C")) {
+            display.setText("0");
+            operador = "";
+            NumAnterior = 0;
+            nuevaOperacion = true;
+        } else {
+            if (!operador.equals("")) {
+                calcular();
+            }
+            operador = textoBoton;
+            NumAnterior = Integer.parseInt(display.getText());
+            nuevaOperacion = true;
+        }
+    }   
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            FacuCalculadora calculadora = new FacuCalculadora();
+            calculadora.setVisible(true);
+        });
+    }
+}
+
